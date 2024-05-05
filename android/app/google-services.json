@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "591284218054",
+    "project_id": "myproject-db2be",
+    "storage_bucket": "myproject-db2be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591284218054:android:d89f56c64d653f031bcfc7",
+        "android_client_info": {
+          "package_name": "com.example.flutter_interfaces"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR8hraaQZFv7VaEVWLZh7NXXpqVH6Gd1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
