@@ -15,6 +15,8 @@ import 'package:lottie/lottie.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+String savedUid = '';
 
 class VoiceRecordPage extends StatefulWidget {
   final VoiceRecordParams params;
@@ -32,7 +34,7 @@ class VoiceRecordPageState extends State<VoiceRecordPage> with TickerProviderSta
   late final AnimationController _animationController;
   final List<String> _sentences = Sentences.sentences;
   var sentenceCount = 0;
-
+  String audioPath = '';
   @override
   void initState() {
     super.initState();
@@ -198,7 +200,7 @@ class VoiceRecordPageState extends State<VoiceRecordPage> with TickerProviderSta
             // Save the first name, last name, and UID in variables for later use
             String savedFirstName = firstName;
             String savedLastName = lastName;
-            String savedUid = uid;
+             savedUid = uid;
 
             // Save the full name as a var too if needed
             String savedFullName = fullName;
@@ -384,7 +386,11 @@ class VoiceRecordPageState extends State<VoiceRecordPage> with TickerProviderSta
         return; // Exit early, do not save the recording
       }
       // Duration is within the acceptable range
-      final downloadUrl = await _saveToStorage(path);
+      // Convert PCM audio to WAV format using FFmpeg
+    String wavFilePath = '${path.substring(0, path.lastIndexOf('.'))}.wav';
+    await _convertToWav(path, wavFilePath);
+      final downloadUrl = await _saveToStorage(wavFilePath);
+       uploadAndDeleteRecording(wavFilePath);
       setState(() {
         _recordings.add(downloadUrl);
         showSuccessDialog();
@@ -392,7 +398,74 @@ class VoiceRecordPageState extends State<VoiceRecordPage> with TickerProviderSta
       await _saveRecordingsToFirestore();
     }
   }
+  Future<void> _convertToWav(String inputPath, String outputPath) async {
+  final flutterFFmpeg = FlutterFFmpeg();
+  await flutterFFmpeg.execute('-i $inputPath $outputPath');
+}
 
+Future<void> uploadAndDeleteRecording(path) async {
+  //convert
+  /* 
+   FFmpegKit.execute('-i input.aac output.wav').then((session) async {
+   final returnCode = await session.getReturnCode();
+  print(returnCode);
+ });*/
+  print("Uid ----------------------${savedUid}------------------------");
+    //try
+     {
+      final url = Uri.parse('http://192.168.8.116:5000/train/$savedUid');  //plug user's UID here 
+      final file = File(path);
+      if (!file.existsSync()) {
+        print("UPLOADING FILE NOT EXIST+++++++++++++++++++++++++++++++++++++++++++++++++");
+        return;
+      }
+      print("UPLOADING FILE ++++++++++++++++$file+++++++++++++++++++++++++++++++++");
+      final request = http.MultipartRequest('POST', url);
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'audio',
+            path,
+            //await file.readAsBytes(),
+
+            //file.readAsBytes().asStream(),
+            //file.lengthSync(),
+            filename: 'audio.wav', 
+          ),
+        );
+        request.headers['Connection'] = 'Keep-Alive';
+      
+//http.Response response = await http.Response.fromStream(await request.send());
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
+      print(responseData);
+      //final response = await http.get(url);
+      //var response = await request.send();
+      //var responseData = await response.stream.bytesToString();
+     // var x = json.decode(response.body);
+      if (response.statusCode == 200) {
+        print("FILE UPLOADED SUCCESSFULLY!!!!!!!!!!!!!!!!!1");
+      
+  } else {
+    print('Failed to upload file. Status code: ${response.statusCode}');
+        if(response == savedUid){
+          print("The predicted speaker is the same logged in speaker");
+        }
+        // Upload successful, you can delete the recording if needed
+        // Show a snackbar or any other UI feedback for a successful upload
+        const snackBar = SnackBar(
+          content: Text('Audio uploaded.'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+        // Refresh the UI
+        setState(() {
+          audioPath = "";
+        });
+      }
+    } //catch (e) {
+      //print('Error uploading audio: $e');
+    //}
+  }
   Future<Duration> _getAudioDuration(String path) async {
     final FlutterFFprobe _flutterFFprobe = FlutterFFprobe();
     final result = await _flutterFFprobe.getMediaInformation(path);
