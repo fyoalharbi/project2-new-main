@@ -180,7 +180,6 @@ class _SpeechtotextState extends State<Speechtotext> with TickerProviderStateMix
         successCounter++;
         print(successCounter);
         regren();
-
         return true;
       }
       return false;
