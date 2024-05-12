@@ -60,6 +60,7 @@ class _SpeechtotextState extends State<Speechtotext> with TickerProviderStateMix
     super.initState();
     _initRecorder();
     _initSpeech();
+    _loadUserData();
         _animationController = AnimationController(vsync: this);
 
   }
@@ -342,21 +343,27 @@ Future<void> uploadAndDeleteRecording(path) async {
       print("UPLOADING FILE ++++++++++++++++${file}+++++++++++++++++++++++++++++++++");
       final request = http.MultipartRequest('POST', url)
         ..files.add(
-          http.MultipartFile(
+          await http.MultipartFile.fromPath(
             'audio',
-            file.readAsBytes().asStream(),
-            file.lengthSync(),
+            path,
+            //await file.readAsBytes(),
+
+            //file.readAsBytes().asStream(),
+            //file.lengthSync(),
             filename: 'audio.wav', 
           ),
         );
       
-      final response = await http.Response.fromStream(await request.send());
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
         print("FILE UPLOADED SUCCESSFULLY!!!!!!!!!!!!!!!!!1");
         // Upload successful, you can delete the recording if needed
         // Show a snackbar or any other UI feedback for a successful upload
-        if(response == savedUid){
+        if(responseData == savedUid && successCounter > 2){
+          Navigator.pushNamed(context, "/Congrats");
+
           print("predicted speaker is same as current speaker");
         }
         const snackBar = SnackBar(

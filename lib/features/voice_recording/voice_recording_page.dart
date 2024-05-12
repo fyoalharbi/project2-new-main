@@ -444,12 +444,13 @@ Future<void> uploadAndDeleteRecording(path) async {
      // var x = json.decode(response.body);
       if (response.statusCode == 200) {
         print("FILE UPLOADED SUCCESSFULLY!!!!!!!!!!!!!!!!!1");
+      if(responseData == savedUid){
+          print("The predicted speaker is the same logged in speaker");
+        }
       
   } else {
     print('Failed to upload file. Status code: ${response.statusCode}');
-        if(response == savedUid){
-          print("The predicted speaker is the same logged in speaker");
-        }
+        
         // Upload successful, you can delete the recording if needed
         // Show a snackbar or any other UI feedback for a successful upload
         const snackBar = SnackBar(
