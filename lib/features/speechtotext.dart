@@ -198,7 +198,7 @@ class _SpeechtotextState extends State<Speechtotext> with TickerProviderStateMix
         physics: const BouncingScrollPhysics(),
         child: Container(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.7,
+          height: MediaQuery.of(context).size.height * 0.9,
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
           margin: const EdgeInsets.only(bottom: 150),
