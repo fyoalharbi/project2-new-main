@@ -57,6 +57,8 @@ class MyApp extends StatelessWidget {
         "/Speechtotext": (context) => const Speechtotext(),
         "/Congrats": (context) => const Congrats(),
         "/Report": (context) =>  Report(),
+                "/finalverfiy": (context) =>  finalverfiy(),
+
 
       },
     );
